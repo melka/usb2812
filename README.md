@@ -1,4 +1,13 @@
-ATMega32u2 USB 1,365 WS2812Bs Driver
+ATMega32u4 USB WS2812Bs Driver
+====================================
+
+This repo is a fork of [Charles Lohr's usb2812 project](https://github.com/cnlohr/usb2812). I only refactored the code a bit in order to get it to compile for an ATMega32U4.
+
+You should be able to drive up to 1,365 WS2812Bs with a minimal USB interface. It was tested with 100 LEDs on a custom PCB wired to a Sparkfun Pro Micro clone off of aliexpress.
+
+Original README.md with a few modifications follows.
+
+ATMega32u4 USB 1,365 WS2812Bs Driver
 ====================================
 
 Many programmers have often taken to the mentality that it's a good thing to use buffers when dealing with USB.  I strongly disagree.  If you can do things with direct access to the hardware, it often behooves you to do so.  Ordinarily, an ATMega32u2 would only be able to buffer ~300 WS2812 LEDs, or less depending on the USB stack.
@@ -12,7 +21,7 @@ Check out the video here: https://www.youtube.com/watch?v=Y5ldIov4JmM
 Hardware
 --------
 
-All you need for this project:  An ATMega32u2 with a USB port attached to it, and a string of WS2812's hooked up to PORTD.3.
+All you need for this project:  An ATMega32u4 with a USB port attached to it ([Sparkfun's Pro Micro](https://www.sparkfun.com/products/12640), [Teensy 2.0](https://www.pjrc.com/store/teensy.html)), and a string of WS2812's hooked up to PORTD.3.
 
 
 How to talk to the AVR?
@@ -49,21 +58,21 @@ The idea behind how this works is as follows (see usb.c)
 	buf[2] = UEDATX;
 	buf[3] = UEDATX;
 	buf[4] = UEDATX;  //Can't wait too long before sending another WS2812 byte.
-	SEND_WS(buf[1]); 
+	SEND_WS(buf[1]);
 	buf[5] = UEDATX;
 	buf[6] = UEDATX;
 	buf[7] = UEDATX;
-	buf[8] = UEDATX; 
+	buf[8] = UEDATX;
 	SEND_WS(buf[2]);
 	buf[9] = UEDATX;
-	buf[10] = UEDATX; 
+	buf[10] = UEDATX;
 ...
 	buf[59] = UEDATX; //We were able to sneak a lot of data out, while sending to the WS2812.
 	SEND_WS(buf[15]);
-	buf[60] = UEDATX; 
-	buf[61] = UEDATX; 
-	buf[62] = UEDATX; 
-	buf[63] = UEDATX; 
+	buf[60] = UEDATX;
+	buf[61] = UEDATX;
+	buf[62] = UEDATX;
+	buf[63] = UEDATX;
 
 	//In fact, a whole buffer's worth, we can ack it so the data keeps flowing.
 
@@ -88,10 +97,13 @@ License Info
 ------------
 
 ```
+ * Modifications by Kamel 'melka' Makhloufi // blaste.net
+ *   -- based off of --
+ * Copyright 2011-2014 Charles Lohr
+ *   -- based off of --
  * USB Keyboard Example for Teensy USB Development Board
  * http://www.pjrc.com/teensy/usb_keyboard.html
  * Copyright (c) 2009 PJRC.COM, LLC
- * Copyright (c) 2011-2014 <>< Charles Lohr
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -99,10 +111,10 @@ License Info
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE

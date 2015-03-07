@@ -1,34 +1,33 @@
-all : program.hex burn program.lst
+all : clean WS2812B.hex burn WS2812B.lst
 CC = avr-gcc
 
-OBJS = test.o usb.o SPIPrinting.o
-SRCS = test.c usb.c SPIPrinting.c
+OBJS = WS2812B_main.o WS2812B_usb.o
+SRCS = WS2812B_main.c WS2812B_usb.c
 
-PROCESSOR=atmega8u2
-PROGRAMCODE=m8u2
+PROCESSOR=atmega32u4
+PROGRAMCODE=m32u4
 CFLAGS = -Wall -Os -mmcu=$(PROCESSOR) -DF_CPU=16000000UL -I. -Iusbdrv
 ASFLAGS = $(CFLAGS) -x assembler-with-cpp
 
-program.elf : $(OBJS)
-	avr-gcc -I -mmcu=$(PROCESSOR) $(CFLAGS) -Wl,-Map,program.map -o $@ $^ -L /usr/lib64/binutils/avr/2.19.1
+WS2812B.elf : $(OBJS)
+	avr-gcc -I -mmcu=$(PROCESSOR) $(CFLAGS) -Wl,-Map,WS2812B.map -o $@ $^ -L /usr/lib64/binutils/avr/2.19.1
 
-program.hex : program.elf
-	avr-objcopy -j .text -j .data -O ihex program.elf program.hex 
+WS2812B.hex : WS2812B.elf
+	avr-objcopy -j .text -j .data -O ihex WS2812B.elf WS2812B.hex
 
-program.lst : $(SRCS)
+WS2812B.lst : $(SRCS)
 	avr-gcc -c -g -Wa,-a,-ad $(CFLAGS) $^ > $@
 
-burn : program.hex
-	avrdude -c usbtiny -p $(PROGRAMCODE) -U flash:w:program.hex -F
-
+burn : WS2812B.hex
+	avrdude -c usbasp -p $(PROGRAMCODE) -U flash:w:WS2812B.hex -F
 
 readfuses :
-	avrdude -c usbtiny -p $(PROGRAMCODE) -U hfuse:r:high.txt:b -U lfuse:r:low.txt:b
+	avrdude -c usbasp -p $(PROGRAMCODE) -U hfuse:r:high.txt:b -U lfuse:r:low.txt:b
 
 burnfuses :
-	avrdude -c usbtiny -p $(PROGRAMCODE) -U lfuse:w:0xEE:m -U hfuse:w:0xD9:m -U efuse:w:0xCC:m
+	avrdude -c usbasp -p $(PROGRAMCODE) -U lfuse:w:0xEE:m -U hfuse:w:0xD9:m -U efuse:w:0xCC:m
 #Setup clock / Disable hardware booter - we want the SPI Programmer only!
 
-clean : 
-	rm -f *~ high.txt low.txt program.hex program.map program.elf $(OBJS) *.o program.lst
+clean :
+	rm -f *~ high.txt low.txt WS2812B.hex WS2812B.map WS2812B.elf $(OBJS) *.o WS2812B.lst
 
